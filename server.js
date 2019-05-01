@@ -7,7 +7,6 @@ const cors = require('cors');
 const superagent = require('superagent');
 
 // Variable for holding current location
-let currentLocation;
 // use environment variable, or, if it's undefined, use 3000 by default
 const PORT = process.env.PORT || 3000;
 
