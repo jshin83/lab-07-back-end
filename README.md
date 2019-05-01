@@ -10,7 +10,7 @@ lab 07
 
 **Finish time:** 1230pm
 
-**Actual time needed to complete:** _____
+**Actual time needed to complete:** 3 hours
 
 # Project Name
 
@@ -18,18 +18,19 @@ lab 07
 **Version**: 1.0.0 (increment the patch/fix version number if you make more commits past your first submission)
 
 ## Overview
-<!-- Provide a high level overview of what this application is and why you are building it, beyond the fact that it's an assignment for this class. (i.e. What's your problem domain?) -->
+User inputs API key to access map and daily weather of queried location.
 
 ## Getting Started
-<!-- What are the steps that a user must take in order to build this app on their own machine and get it running? -->
+Have google maps API key.
 
 ## Architecture
-<!-- Provide a detailed description of the application design. What technologies (languages, libraries, etc) you're using, and any other relevant design information. -->
+Express, node, dependencies.
 
 ## Change Log
-<!-- Use this area to document the iterative changes made to your application as each feature is successfully implemented. Use time stamps. Here's an examples:
 
-01-01-2001 4:59pm - Application now has a fully-functional express server, with a GET route for the location resource.
+1May 10:30am - Application now shows map for queried location, GET route for the location resource.
+1May 11 am - Dark sky weather query complete and successful.
+1May 1115 am - Weather data returns with map().
+1May 1155 am - 20 events show on page per location.
 
 ## Credits and Collaborations
-<!-- Give credit (and a link) to other people or resources that helped you build this application. -->
