@@ -4,11 +4,16 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const superagent = require('superagent');
+
 // Variable for holding current location
 let currentLocation;
 // use environment variable, or, if it's undefined, use 3000 by default
 const PORT = process.env.PORT || 3000;
 
+//static files
+app.use(cors());
+app.use(express.static('./public'));
 
 // Constructor for the Location response from API
 const LocationResponse = function(request, formatted_query, lat, long){
@@ -40,15 +45,20 @@ function errorHandling(error, status, response){
   response.status(status).send('Sorry, something went wrong');
 }
 
-app.use(cors());
-app.use(express.static('./public'));
-
+//routes
 app.get('/location', (request, response) => {
-  //check for json file
   try {
-    let geoData = require('./data/geo.json');
-    currentLocation = new LocationResponse(request, geoData.results[0].formatted_address, geoData.results[0].geometry.location.lat, geoData.results[0].geometry.location.lng);
-    response.send(currentLocation);
+    // queryData is what the user typed into the box in the FE and hit "explore"
+    const queryData = request.query.data;
+
+    let geocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${queryData}&key=${process.env.GOOGLE_API_KEY}`;
+    superagent.get(geocodeURL).end( (err, googleMapsApiResponse) => {
+      console.log(googleMapsApiResponse.body);
+      // turn it into a location instance
+      const location = new Location(queryData, googleMapsApiResponse.body);
+      // send that as our response to our frontend
+      response.send(location);
+    });
   } catch( error ) {
     console.log('There was an error /location path');
     errorHandling(error, 500, 'Sorry, something went wrong.');
