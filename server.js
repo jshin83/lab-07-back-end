@@ -31,18 +31,15 @@ const DaysWeather = function(forecast, time){
 
 // Function for getting all the daily weather
 function getDailyWeather(weatherData){
-  let dailyWeather = [];
-  let weatherLength = weatherData.daily.data.length;
-  for (let i = 0; i < weatherLength; i++) {
-    let day = new DaysWeather(weatherData.daily.data[i].summary, weatherData.daily.data[i].time);
-    dailyWeather.push(day);
-  }
-  return dailyWeather;
+  let weatherArr = weatherData.daily.data;
+  return weatherArr.map(day => {
+    return new DaysWeather(day.summary, day.time);
+  });
 }
 
 // Function for handling errors
 function errorHandling(error, status, response){
- // response.status(status).send('Sorry, something went wrong');
+  response.status(status).send('Sorry, something went wrong');
 }
 
 //routes
@@ -54,31 +51,42 @@ app.get('/location', (request, response) => {
     let geocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${queryData}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
     superagent.get(geocodeURL).end( (err, googleMapsApiResponse) => {
       console.log(googleMapsApiResponse.body);
-      // turn it into a location instance
       const location = new Location(queryData, googleMapsApiResponse.body);
-      // send that as our response to our frontend
-      console.log('location ', location);
+
       response.send(location);
     });
   } catch( error ) {
-    console.log('There was an error /location path');
     errorHandling(error, 500, 'Sorry, something went wrong.');
   }
 });
 
+
+//route for weather daily data
 app.get('/weather', (request, response) => {
-  //check for json file
   try {
-    //let weatherData = require('./data/darksky.json');
-    let darkskyURL = `https://api.darksky.net/forecast/${DARK_SKY_API_KEY}/37.8267,-122.4233`;
-    console.log(request.query.data);
-    //let weather = getDailyWeather(weatherData);
-    // response.send(weather);
+    let darkskyURL = `https://api.darksky.net/forecast/${process.env.DARK_SKY_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
+
+    superagent.get(darkskyURL).end((err, weatherApiResponse) => {
+      console.log('weather response ', weatherApiResponse.body);
+      response.send(getDailyWeather(weatherApiResponse.body));
+    });
   } catch( error ) {
-    console.log('There was an error /weather path');
     errorHandling(error, 500, 'Sorry, something went wrong.');
   }
 });
 
+//route for eventbrite
+app.get('/events', (request, response) => {
+  try {
+    let darkskyURL = `https://api.darksky.net/forecast/${process.env.DARK_SKY_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
+
+    superagent.get(darkskyURL).end((err, weatherApiResponse) => {
+      console.log('weather response ', weatherApiResponse.body);
+      response.send(getDailyWeather(weatherApiResponse.body));
+    });
+  } catch( error ) {
+    errorHandling(error, 500, 'Sorry, something went wrong.');
+  }
+});
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
