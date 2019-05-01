@@ -29,6 +29,58 @@ const DaysWeather = function(forecast, time){
   this.time = new Date(time * 1000).toDateString();
 };
 
+//Constructor for eventInstance
+const Event = function(res) {
+  this.link = res.url;
+  this.name = res.name.text;
+  this.event_date = new Date(res.start.utc).toDateString();
+  this.summary = res.summary;
+};
+
+//routes
+app.get('/location', (request, response) => {
+  try {
+    // queryData is what the user typed into the box in the FE and hit "explore"
+    const queryData = request.query.data;
+
+    let geocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${queryData}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+    superagent.get(geocodeURL).end( (err, googleMapsApiResponse) => {
+      const location = new Location(queryData, googleMapsApiResponse.body);
+
+      response.send(location);
+    });
+  } catch( error ) {
+    errorHandling(error, 500, 'Sorry, something went wrong.');
+  }
+});
+
+//route for weather daily data
+app.get('/weather', (request, response) => {
+  try {
+    let darkskyURL = `https://api.darksky.net/forecast/${process.env.DARK_SKY_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
+
+    superagent.get(darkskyURL).end((err, weatherApiResponse) => {
+      response.send(getDailyWeather(weatherApiResponse.body));
+    });
+  } catch( error ) {
+    errorHandling(error, 500, 'Sorry, something went wrong.');
+  }
+});
+
+//route for eventbrite
+app.get('/events', (request, response) => {
+  try {
+    let eventsURL = `https://www.eventbriteapi.com/v3/events/search?location.longitude=${request.query.data.longitude}&location.latitude=${request.query.data.latitude}&expand=venue&token=${process.env.EVENTBRITE_API_KEY}`;
+
+    superagent.get(eventsURL).end((err, eventsApiResponse) => {
+      //console.log(processEvents(eventsApiResponse.body.events.slice(0, 21)));
+      response.send(processEvents(eventsApiResponse.body.events.slice(0, 21)));
+    });
+  } catch( error ) {
+    errorHandling(error, 500, 'Sorry, something went wrong.');
+  }
+});
+
 // Function for getting all the daily weather
 function getDailyWeather(weatherData){
   let weatherArr = weatherData.daily.data;
@@ -42,51 +94,11 @@ function errorHandling(error, status, response){
   response.status(status).send('Sorry, something went wrong');
 }
 
-//routes
-app.get('/location', (request, response) => {
-  try {
-    // queryData is what the user typed into the box in the FE and hit "explore"
-    const queryData = request.query.data;
-
-    let geocodeURL = `https://maps.googleapis.com/maps/api/geocode/json?address=${queryData}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
-    superagent.get(geocodeURL).end( (err, googleMapsApiResponse) => {
-      console.log(googleMapsApiResponse.body);
-      const location = new Location(queryData, googleMapsApiResponse.body);
-
-      response.send(location);
-    });
-  } catch( error ) {
-    errorHandling(error, 500, 'Sorry, something went wrong.');
-  }
-});
-
-
-//route for weather daily data
-app.get('/weather', (request, response) => {
-  try {
-    let darkskyURL = `https://api.darksky.net/forecast/${process.env.DARK_SKY_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
-
-    superagent.get(darkskyURL).end((err, weatherApiResponse) => {
-      console.log('weather response ', weatherApiResponse.body);
-      response.send(getDailyWeather(weatherApiResponse.body));
-    });
-  } catch( error ) {
-    errorHandling(error, 500, 'Sorry, something went wrong.');
-  }
-});
-
-//route for eventbrite
-app.get('/events', (request, response) => {
-  try {
-    let darkskyURL = `https://api.darksky.net/forecast/${process.env.DARK_SKY_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
-
-    superagent.get(darkskyURL).end((err, weatherApiResponse) => {
-      console.log('weather response ', weatherApiResponse.body);
-      response.send(getDailyWeather(weatherApiResponse.body));
-    });
-  } catch( error ) {
-    errorHandling(error, 500, 'Sorry, something went wrong.');
-  }
-});
+// helper to process events
+function processEvents(eventsData) {
+  return eventsData.map( event => {
+    return new Event(event);
+  });
+}
 
 app.listen(PORT, () => console.log(`Listening on port ${PORT}`));

@@ -31,6 +31,6 @@ Express, node, dependencies.
 1May 10:30am - Application now shows map for queried location, GET route for the location resource.
 1May 11 am - Dark sky weather query complete and successful.
 1May 1115 am - Weather data returns with map().
+1May 1155 am - 20 events show on page per location.
 
 ## Credits and Collaborations
-<!-- Give credit (and a link) to other people or resources that helped you build this application. -->
