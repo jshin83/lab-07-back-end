@@ -10,7 +10,7 @@ lab 07
 
 **Finish time:** 1230pm
 
-**Actual time needed to complete:** _____
+**Actual time needed to complete:** 3 hours
 
 # Project Name
 
