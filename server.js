@@ -48,7 +48,7 @@ app.get('/location', (request, response) => {
       response.send(location);
     });
   } catch( error ) {
-    errorHandling(error, 500, 'Sorry, something went wrong.');
+    errorHandling(error, 500, response);
   }
 });
 
@@ -61,7 +61,7 @@ app.get('/weather', (request, response) => {
       response.send(getDailyWeather(weatherApiResponse.body));
     });
   } catch( error ) {
-    errorHandling(error, 500, 'Sorry, something went wrong.');
+    errorHandling(error, 500, response);
   }
 });
 
@@ -75,7 +75,7 @@ app.get('/events', (request, response) => {
       response.send(processEvents(eventsApiResponse.body.events.slice(0, 21)));
     });
   } catch( error ) {
-    errorHandling(error, 500, 'Sorry, something went wrong.');
+    errorHandling(error, 500, response);
   }
 });
 
